@@ -1,0 +1,932 @@
+{
+  "settings": {
+    "title": "Football News",
+    "max_age_days": 3,
+    "front_page_items": 5,
+    "max_stories_per_league": 250,
+    "timeout_seconds": 15,
+    "max_workers": 8,
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+    "output_dir": "site",
+    "google_news_hl": "en-GB",
+    "google_news_gl": "GB",
+    "google_news_club_feeds": false,
+    "timezone": "Europe/Helsinki"
+  },
+  "exclude_title_patterns": [
+    "(?i)^\\s*match thread",
+    "(?i)post[- ]match thread",
+    "(?i)daily discussion",
+    "(?i)free talk friday"
+  ],
+  "sources": [
+    {
+      "id": "google-ucl",
+      "name": "Google News",
+      "type": "google_news",
+      "query": "Champions League",
+      "default_leagues": [
+        "ucl"
+      ],
+      "aggregator": true
+    },
+    {
+      "id": "google-la-liga",
+      "name": "Google News",
+      "type": "google_news",
+      "query": "La Liga",
+      "default_leagues": [
+        "la_liga"
+      ],
+      "aggregator": true
+    },
+    {
+      "id": "google-pl",
+      "name": "Google News",
+      "type": "google_news",
+      "query": "Premier League",
+      "default_leagues": [
+        "premier_league"
+      ],
+      "aggregator": true
+    },
+    {
+      "id": "google-serie-a",
+      "name": "Google News",
+      "type": "google_news",
+      "query": "Serie A football",
+      "default_leagues": [
+        "serie_a"
+      ],
+      "aggregator": true
+    },
+    {
+      "id": "google-bundesliga",
+      "name": "Google News",
+      "type": "google_news",
+      "query": "Bundesliga",
+      "default_leagues": [
+        "bundesliga"
+      ],
+      "aggregator": true
+    },
+    {
+      "id": "google-ligue-1",
+      "name": "Google News",
+      "type": "google_news",
+      "query": "Ligue 1",
+      "default_leagues": [
+        "ligue_1"
+      ],
+      "aggregator": true
+    },
+    {
+      "id": "bbc",
+      "name": "BBC Sport",
+      "urls": [
+        "https://feeds.bbci.co.uk/sport/football/rss.xml"
+      ]
+    },
+    {
+      "id": "guardian",
+      "name": "The Guardian",
+      "urls": [
+        "https://www.theguardian.com/football/rss"
+      ]
+    },
+    {
+      "id": "guardian-ucl",
+      "name": "The Guardian",
+      "urls": [
+        {
+          "url": "https://www.theguardian.com/football/championsleague/rss",
+          "default_leagues": [
+            "ucl"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guardian-pl",
+      "name": "The Guardian",
+      "urls": [
+        {
+          "url": "https://www.theguardian.com/football/premierleague/rss",
+          "default_leagues": [
+            "premier_league"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guardian-la-liga",
+      "name": "The Guardian",
+      "urls": [
+        {
+          "url": "https://www.theguardian.com/football/laligafootball/rss",
+          "default_leagues": [
+            "la_liga"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guardian-serie-a",
+      "name": "The Guardian",
+      "urls": [
+        {
+          "url": "https://www.theguardian.com/football/serieafootball/rss",
+          "default_leagues": [
+            "serie_a"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guardian-bundesliga",
+      "name": "The Guardian",
+      "urls": [
+        {
+          "url": "https://www.theguardian.com/football/bundesligafootball/rss",
+          "default_leagues": [
+            "bundesliga"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guardian-ligue-1",
+      "name": "The Guardian",
+      "urls": [
+        {
+          "url": "https://www.theguardian.com/football/ligue1football/rss",
+          "default_leagues": [
+            "ligue_1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "espn",
+      "name": "ESPN",
+      "urls": [
+        "https://www.espn.com/espn/rss/soccer/news"
+      ],
+      "user_agent": "Mozilla/5.0 (compatible; FootballNewsBuilder/1.0)"
+    },
+    {
+      "id": "marca-la-liga",
+      "name": "Marca",
+      "lang": "es",
+      "urls": [
+        {
+          "url": "https://e00-marca.uecdn.es/rss/futbol/primera-division.xml",
+          "default_leagues": [
+            "la_liga"
+          ]
+        },
+        {
+          "url": "https://e00-marca.uecdn.es/rss/futbol.xml"
+        }
+      ]
+    },
+    {
+      "id": "marca-ucl",
+      "name": "Marca",
+      "lang": "es",
+      "urls": [
+        {
+          "url": "https://e00-marca.uecdn.es/rss/futbol/champions-league.xml",
+          "default_leagues": [
+            "ucl"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "as",
+      "name": "AS",
+      "lang": "es",
+      "urls": [
+        "https://feeds.as.com/mrss-s/pages/as/site/as.com/section/futbol/portada/",
+        "https://as.com/rss/tags/ultimas_noticias.xml"
+      ]
+    },
+    {
+      "id": "sport",
+      "name": "Sport",
+      "lang": "es",
+      "type": "google_news",
+      "query": "site:sport.es",
+      "aggregator": true,
+      "use_summary": false,
+      "default_leagues": []
+    },
+    {
+      "id": "gazzetta",
+      "name": "La Gazzetta dello Sport",
+      "lang": "it",
+      "urls": [
+        {
+          "url": "https://www.gazzetta.it/rss/serie-a.xml",
+          "default_leagues": [
+            "serie_a"
+          ]
+        },
+        {
+          "url": "https://www.gazzetta.it/rss/calcio.xml"
+        }
+      ]
+    },
+    {
+      "id": "kicker-bundesliga",
+      "name": "Kicker",
+      "lang": "de",
+      "urls": [
+        {
+          "url": "https://newsfeed.kicker.de/news/bundesliga",
+          "default_leagues": [
+            "bundesliga"
+          ]
+        },
+        {
+          "url": "https://newsfeed.kicker.de/news/aktuell"
+        }
+      ]
+    },
+    {
+      "id": "kicker-ucl",
+      "name": "Kicker",
+      "lang": "de",
+      "urls": [
+        {
+          "url": "https://newsfeed.kicker.de/news/champions-league",
+          "default_leagues": [
+            "ucl"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lequipe",
+      "name": "L'Équipe",
+      "lang": "fr",
+      "urls": [
+        {
+          "url": "https://dwh.lequipe.fr/api/edito/rss?path=/Football/ligue-1/",
+          "default_leagues": [
+            "ligue_1"
+          ]
+        },
+        {
+          "url": "https://www.lequipe.fr/rss/actu_rss_Football.xml"
+        }
+      ]
+    }
+  ],
+  "leagues": [
+    {
+      "key": "ucl",
+      "name": "Champions League",
+      "slug": "ucl",
+      "keywords": [
+        "Champions League",
+        "Champions-League",
+        "UCL",
+        "Liga de Campeones",
+        "Ligue des Champions",
+        "Lega Champions",
+        "Konigsklasse"
+      ],
+      "keyword_exclude": [
+        "Women's Champions League",
+        "Womens Champions League",
+        "Frauen Champions League"
+      ],
+      "assign_by_team": false,
+      "teams": [
+        "Arsenal",
+        "Manchester City",
+        "Manchester United",
+        "Aston Villa",
+        "Liverpool",
+        "Real Madrid",
+        "Barcelona",
+        "Atlético Madrid",
+        "Villarreal",
+        "Real Betis",
+        "Inter Milan",
+        "Napoli",
+        "AS Roma",
+        "Como",
+        "Bayern Munich",
+        "Borussia Dortmund",
+        "RB Leipzig",
+        "VfB Stuttgart",
+        "Paris Saint-Germain",
+        "Lens",
+        "Lille",
+        {
+          "name": "PSV Eindhoven",
+          "aliases": [
+            "PSV"
+          ]
+        },
+        "Feyenoord",
+        {
+          "name": "FC Porto",
+          "aliases": [
+            "Porto"
+          ]
+        },
+        {
+          "name": "Sporting CP",
+          "aliases": [
+            "Sporting Lisbon",
+            "Sporting Lisboa"
+          ]
+        },
+        {
+          "name": "Club Brugge",
+          "aliases": [
+            "Brugge",
+            "Bruges"
+          ]
+        },
+        "Galatasaray",
+        "Fenerbahçe",
+        {
+          "name": "Shakhtar Donetsk",
+          "aliases": [
+            "Shakhtar"
+          ]
+        },
+        {
+          "name": "Slavia Prague",
+          "aliases": [
+            "Slavia Praha"
+          ]
+        },
+        {
+          "name": "Bodø/Glimt",
+          "aliases": [
+            "Bodo Glimt",
+            "Glimt"
+          ]
+        },
+        {
+          "name": "Viking",
+          "name_weak": true,
+          "aliases": [
+            "Viking FK"
+          ]
+        },
+        {
+          "name": "LASK",
+          "aliases": [
+            "LASK Linz"
+          ]
+        },
+        {
+          "name": "Sabah",
+          "name_weak": true,
+          "aliases": [
+            "Sabah FC",
+            "Sabah Baku"
+          ]
+        },
+        "Slovan Bratislava",
+        "AEK Athens"
+      ]
+    },
+    {
+      "key": "la_liga",
+      "name": "La Liga",
+      "slug": "la-liga",
+      "keywords": [
+        "La Liga",
+        "LaLiga",
+        "Primera Division",
+        "Liga EA Sports",
+        "Spanish league",
+        "El Clasico"
+      ],
+      "teams": [
+        {
+          "name": "Alavés",
+          "aliases": [
+            "Deportivo Alaves"
+          ]
+        },
+        {
+          "name": "Athletic Bilbao",
+          "aliases": [
+            "Athletic Club",
+            "Athletic de Bilbao"
+          ]
+        },
+        {
+          "name": "Atlético Madrid",
+          "aliases": [
+            "Atlético de Madrid",
+            "Atleti"
+          ],
+          "weak_aliases": [
+            "Atlético"
+          ]
+        },
+        {
+          "name": "Barcelona",
+          "aliases": [
+            "FC Barcelona",
+            "Barça",
+            "Blaugrana"
+          ],
+          "exclude": [
+            "Barcelona SC"
+          ]
+        },
+        {
+          "name": "Celta Vigo",
+          "aliases": [
+            "Celta de Vigo",
+            "Celta"
+          ]
+        },
+        {
+          "name": "Deportivo A Coruña",
+          "aliases": [
+            "Deportivo La Coruña",
+            "Deportivo de La Coruña"
+          ],
+          "weak_aliases": [
+            "Deportivo",
+            "Depor"
+          ],
+          "exclude": [
+            "Deportivo Alaves"
+          ]
+        },
+        "Elche",
+        {
+          "name": "Espanyol",
+          "aliases": [
+            "RCD Espanyol"
+          ]
+        },
+        "Getafe",
+        "Levante",
+        {
+          "name": "Málaga",
+          "aliases": [
+            "Malaga CF"
+          ]
+        },
+        "Osasuna",
+        {
+          "name": "Racing Santander",
+          "aliases": [
+            "Racing de Santander",
+            "Real Racing Club"
+          ]
+        },
+        {
+          "name": "Rayo Vallecano",
+          "aliases": [
+            "Rayo"
+          ]
+        },
+        {
+          "name": "Real Betis",
+          "aliases": [
+            "Betis"
+          ]
+        },
+        {
+          "name": "Real Madrid",
+          "aliases": [
+            "Real Madrid CF"
+          ]
+        },
+        "Real Sociedad",
+        "Sevilla",
+        "Valencia",
+        "Villarreal"
+      ]
+    },
+    {
+      "key": "premier_league",
+      "name": "Premier League",
+      "slug": "premier-league",
+      "keywords": [
+        "Premier League",
+        "EPL",
+        "English top flight"
+      ],
+      "teams": [
+        "Arsenal",
+        {
+          "name": "Aston Villa",
+          "aliases": [
+            "Villa"
+          ]
+        },
+        {
+          "name": "Bournemouth",
+          "aliases": [
+            "AFC Bournemouth"
+          ]
+        },
+        "Brentford",
+        {
+          "name": "Brighton",
+          "aliases": [
+            "Brighton & Hove Albion",
+            "Brighton and Hove Albion"
+          ]
+        },
+        "Chelsea",
+        {
+          "name": "Coventry City",
+          "aliases": [
+            "Coventry"
+          ]
+        },
+        {
+          "name": "Crystal Palace",
+          "weak_aliases": [
+            "Palace"
+          ]
+        },
+        "Everton",
+        "Fulham",
+        {
+          "name": "Hull City",
+          "weak_aliases": [
+            "Hull"
+          ]
+        },
+        {
+          "name": "Ipswich Town",
+          "aliases": [
+            "Ipswich"
+          ]
+        },
+        {
+          "name": "Leeds United",
+          "aliases": [
+            "Leeds"
+          ]
+        },
+        "Liverpool",
+        {
+          "name": "Manchester City",
+          "aliases": [
+            "Man City"
+          ]
+        },
+        {
+          "name": "Manchester United",
+          "aliases": [
+            "Man United",
+            "Man Utd"
+          ]
+        },
+        {
+          "name": "Newcastle United",
+          "aliases": [
+            "Newcastle"
+          ]
+        },
+        {
+          "name": "Nottingham Forest",
+          "aliases": [
+            "Nottm Forest"
+          ],
+          "weak_aliases": [
+            "Forest"
+          ]
+        },
+        "Sunderland",
+        {
+          "name": "Tottenham Hotspur",
+          "aliases": [
+            "Tottenham",
+            "Spurs"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "serie_a",
+      "name": "Serie A",
+      "slug": "serie-a",
+      "keywords": [
+        "Serie A",
+        "Scudetto",
+        "Italian league"
+      ],
+      "teams": [
+        {
+          "name": "AC Milan",
+          "aliases": [
+            "Milan AC"
+          ],
+          "weak_aliases": [
+            "Milan"
+          ],
+          "exclude": [
+            "Inter Milan",
+            "Inter de Milan",
+            "Inter Milano",
+            "Internazionale Milano"
+          ]
+        },
+        "Atalanta",
+        "Bologna",
+        "Cagliari",
+        "Como",
+        "Fiorentina",
+        "Frosinone",
+        {
+          "name": "Genoa",
+          "aliases": [
+            "Genoa CFC"
+          ]
+        },
+        {
+          "name": "Inter Milan",
+          "aliases": [
+            "Internazionale",
+            "Inter Milano",
+            "FC Internazionale"
+          ],
+          "weak_aliases": [
+            "Inter"
+          ],
+          "exclude": [
+            "Inter Miami"
+          ]
+        },
+        {
+          "name": "Juventus",
+          "aliases": [
+            "Juve"
+          ]
+        },
+        "Lazio",
+        "Lecce",
+        "Monza",
+        {
+          "name": "Napoli",
+          "aliases": [
+            "SSC Napoli"
+          ]
+        },
+        "Parma",
+        {
+          "name": "AS Roma",
+          "weak_aliases": [
+            "Roma"
+          ]
+        },
+        "Sassuolo",
+        "Torino",
+        "Udinese",
+        "Venezia"
+      ]
+    },
+    {
+      "key": "bundesliga",
+      "name": "Bundesliga",
+      "slug": "bundesliga",
+      "keywords": [
+        "Bundesliga",
+        "German league"
+      ],
+      "teams": [
+        {
+          "name": "Bayern Munich",
+          "aliases": [
+            "Bayern München",
+            "Bayern Múnich",
+            "Bayern Monaco",
+            "FC Bayern",
+            "Bayern"
+          ]
+        },
+        {
+          "name": "Borussia Dortmund",
+          "aliases": [
+            "Dortmund",
+            "BVB"
+          ]
+        },
+        {
+          "name": "RB Leipzig",
+          "aliases": [
+            "Leipzig"
+          ]
+        },
+        {
+          "name": "Bayer Leverkusen",
+          "aliases": [
+            "Leverkusen"
+          ]
+        },
+        {
+          "name": "VfB Stuttgart",
+          "aliases": [
+            "Stuttgart"
+          ]
+        },
+        {
+          "name": "Eintracht Frankfurt",
+          "aliases": [
+            "Eintracht"
+          ],
+          "weak_aliases": [
+            "Frankfurt"
+          ]
+        },
+        {
+          "name": "Hoffenheim",
+          "aliases": [
+            "TSG Hoffenheim",
+            "TSG 1899 Hoffenheim"
+          ]
+        },
+        {
+          "name": "Union Berlin",
+          "aliases": [
+            "1. FC Union Berlin"
+          ]
+        },
+        {
+          "name": "SC Freiburg",
+          "aliases": [
+            "Freiburg"
+          ]
+        },
+        {
+          "name": "Mainz 05",
+          "aliases": [
+            "Mainz"
+          ]
+        },
+        {
+          "name": "Borussia Mönchengladbach",
+          "aliases": [
+            "Mönchengladbach",
+            "Gladbach"
+          ]
+        },
+        {
+          "name": "Werder Bremen",
+          "aliases": [
+            "Werder"
+          ]
+        },
+        {
+          "name": "FC Augsburg",
+          "aliases": [
+            "Augsburg"
+          ]
+        },
+        {
+          "name": "1. FC Köln",
+          "aliases": [
+            "FC Köln",
+            "Köln"
+          ],
+          "weak_aliases": [
+            "Cologne"
+          ]
+        },
+        {
+          "name": "Hamburger SV",
+          "aliases": [
+            "HSV"
+          ],
+          "weak_aliases": [
+            "Hamburg"
+          ]
+        },
+        {
+          "name": "Schalke 04",
+          "aliases": [
+            "Schalke"
+          ]
+        },
+        {
+          "name": "SV Elversberg",
+          "aliases": [
+            "Elversberg"
+          ]
+        },
+        {
+          "name": "SC Paderborn",
+          "aliases": [
+            "Paderborn"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "ligue_1",
+      "name": "Ligue 1",
+      "slug": "ligue-1",
+      "keywords": [
+        "Ligue 1",
+        "Ligue1",
+        "French league"
+      ],
+      "teams": [
+        {
+          "name": "Angers",
+          "aliases": [
+            "Angers SCO"
+          ]
+        },
+        "Auxerre",
+        {
+          "name": "Brest",
+          "aliases": [
+            "Stade Brestois"
+          ]
+        },
+        "Le Havre",
+        "Le Mans",
+        {
+          "name": "Lens",
+          "aliases": [
+            "RC Lens"
+          ]
+        },
+        {
+          "name": "Lille",
+          "aliases": [
+            "LOSC"
+          ]
+        },
+        "Lorient",
+        {
+          "name": "Lyon",
+          "aliases": [
+            "Olympique Lyonnais"
+          ]
+        },
+        {
+          "name": "Marseille",
+          "aliases": [
+            "Olympique de Marseille",
+            "Olympique Marseille"
+          ]
+        },
+        {
+          "name": "Monaco",
+          "name_weak": true,
+          "aliases": [
+            "AS Monaco"
+          ]
+        },
+        {
+          "name": "Nice",
+          "name_weak": true,
+          "aliases": [
+            "OGC Nice",
+            "OGCN"
+          ]
+        },
+        "Paris FC",
+        {
+          "name": "Paris Saint-Germain",
+          "aliases": [
+            "PSG",
+            "Paris SG",
+            "Paris Saint Germain"
+          ]
+        },
+        {
+          "name": "Rennes",
+          "aliases": [
+            "Stade Rennais"
+          ]
+        },
+        {
+          "name": "Strasbourg",
+          "aliases": [
+            "RC Strasbourg"
+          ]
+        },
+        "Toulouse",
+        {
+          "name": "Troyes",
+          "aliases": [
+            "ESTAC Troyes"
+          ]
+        }
+      ]
+    }
+  ]
+}
