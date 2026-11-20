@@ -12,9 +12,10 @@
     "google_news_gl": "GB",
     "google_news_club_feeds": false,
     "timezone": "Europe/Helsinki",
-    "max_image_lookups": 60,
+    "max_image_lookups": 0,
     "image_lookup_timeout": 8,
-    "image_lookup_total_seconds": 45
+    "image_lookup_total_seconds": 45,
+    "image_score_bonus": 1.5
   },
   "exclude_title_patterns": [
     "(?i)^\\s*match thread",

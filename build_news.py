@@ -508,7 +508,7 @@ def classify(item: Item, leagues: list) -> None:
 
 # --------------------------------------------------------------------------- clustering and ranking
 
-def build_clusters(items: list, now: dt.datetime) -> list:
+def build_clusters(items: list, now: dt.datetime, image_bonus: float = 0.0) -> list:
     items = sorted(items, key=lambda i: i.published, reverse=True)
     clusters = []
     for it in items:
@@ -552,7 +552,7 @@ def build_clusters(items: list, now: dt.datetime) -> list:
                 links.append(m.link)
         latest = max(m.published for m in members)
         age_h = max(0.0, (now - latest).total_seconds() / 3600)
-        score = 2.0 * min(len(sources) - 1, 5) + 4.0 * 0.5 ** (age_h / 12)
+        score = 2.0 * min(len(sources) - 1, 5) + 4.0 * 0.5 ** (age_h / 12) + (image_bonus if image else 0.0)
         result.append({"rep": rep, "sources": sources, "leagues": leagues, "teams": teams,
                        "latest": latest, "score": score, "image": image, "links": links})
     return result
@@ -1020,7 +1020,7 @@ def main() -> int:
         classify_source(r, leagues, exclude_titles, cutoff, now)
         kept.extend(r["kept_items"])
 
-    clusters = build_clusters(kept, now)
+    clusters = build_clusters(kept, now, st.get("image_score_bonus", 1.5))
     lookups = None
     if not args.samples:  # test mode has no internet
         lookups = add_page_images(clusters, leagues, st)
