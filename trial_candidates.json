@@ -1,0 +1,1099 @@
+{
+ "_note": "Candidate feeds for the trial run (python build_news.py --trial trial_candidates.json). Many addresses are best guesses; failures are expected.",
+ "sources": [
+  {
+   "id": "sky-football",
+   "name": "Sky Sports",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.skysports.com/rss/12040",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "sky-pl",
+   "name": "Sky Sports",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.skysports.com/rss/11095",
+     "default_leagues": [
+      "premier_league"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sky-ucl",
+   "name": "Sky Sports",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.skysports.com/rss/11066",
+     "default_leagues": [
+      "ucl"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "goal",
+   "name": "Goal",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.goal.com/feeds/en/news",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "90min",
+   "name": "90min",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.90min.com/feed",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "independent",
+   "name": "The Independent",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.independent.co.uk/sport/football/rss",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "telegraph",
+   "name": "The Telegraph",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.telegraph.co.uk/football/rss.xml",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "mirror",
+   "name": "Mirror",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.mirror.co.uk/sport/football/?service=rss",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "dailymail",
+   "name": "Daily Mail",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.dailymail.co.uk/sport/football/index.rss",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "sun",
+   "name": "The Sun",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.thesun.co.uk/sport/football/feed/",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "express",
+   "name": "Express",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.express.co.uk/posts/rss/67/football",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "dailystar",
+   "name": "Daily Star",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.dailystar.co.uk/sport/football/?service=rss",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "standard",
+   "name": "Evening Standard",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.standard.co.uk/sport/football/rss",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "metro",
+   "name": "Metro",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://metro.co.uk/sport/football/feed/",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "talksport",
+   "name": "talkSPORT",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://talksport.com/football/feed/",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "fourfourtwo",
+   "name": "FourFourTwo",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.fourfourtwo.com/feeds/all",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "football365",
+   "name": "Football365",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.football365.com/feed",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "planetfootball",
+   "name": "Planet Football",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.planetfootball.com/feed",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "givemesport",
+   "name": "GIVEMESPORT",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.givemesport.com/feed/",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "squawka",
+   "name": "Squawka",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.squawka.com/news/feed/",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "theanalyst",
+   "name": "The Analyst",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://theanalyst.com/feed",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "footballtransfers",
+   "name": "Football Transfers",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.footballtransfers.com/en/feed",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "sportwitness",
+   "name": "Sport Witness",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://sportwitness.co.uk/feed/",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "eurosport",
+   "name": "Eurosport",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.eurosport.com/football/rss.xml",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "cbs-soccer",
+   "name": "CBS Sports",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.cbssports.com/rss/headlines/soccer/",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "yahoo-soccer",
+   "name": "Yahoo Sports",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://sports.yahoo.com/soccer/rss/",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "espn-alt1",
+   "name": "ESPN",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.espn.com/espn/rss/soccer/news",
+     "default_leagues": []
+    }
+   ],
+   "user_agent": "Mozilla/5.0 (compatible; FootballNewsBuilder/1.0)"
+  },
+  {
+   "id": "espn-alt2",
+   "name": "ESPN",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.espn.co.uk/espn/rss/football/news",
+     "default_leagues": []
+    }
+   ],
+   "user_agent": "Mozilla/5.0 (compatible; FootballNewsBuilder/1.0)"
+  },
+  {
+   "id": "uefa-ucl",
+   "name": "UEFA.com",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.uefa.com/rssfeed/uefachampionsleague/rss.xml",
+     "default_leagues": [
+      "ucl"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "bbc-pl",
+   "name": "BBC Sport",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://feeds.bbci.co.uk/sport/football/premier-league/rss.xml",
+     "default_leagues": [
+      "premier_league"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "bbc-ucl",
+   "name": "BBC Sport",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://feeds.bbci.co.uk/sport/football/champions-league/rss.xml",
+     "default_leagues": [
+      "ucl"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "bbc-la-liga",
+   "name": "BBC Sport",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://feeds.bbci.co.uk/sport/football/spanish-la-liga/rss.xml",
+     "default_leagues": [
+      "la_liga"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "bbc-serie-a",
+   "name": "BBC Sport",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://feeds.bbci.co.uk/sport/football/italian-serie-a/rss.xml",
+     "default_leagues": [
+      "serie_a"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "bbc-bundesliga",
+   "name": "BBC Sport",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://feeds.bbci.co.uk/sport/football/german-bundesliga/rss.xml",
+     "default_leagues": [
+      "bundesliga"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "bbc-ligue-1",
+   "name": "BBC Sport",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://feeds.bbci.co.uk/sport/football/french-ligue-one/rss.xml",
+     "default_leagues": [
+      "ligue_1"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "bbc-european",
+   "name": "BBC Sport",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://feeds.bbci.co.uk/sport/football/european/rss.xml",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "bavarian-football-works",
+   "name": "Bavarian Football Works",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://bavarianfootballworks.com/rss/index.xml",
+     "default_leagues": [
+      "bundesliga"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "barca-blaugranes",
+   "name": "Barca Blaugranes",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.barcablaugranes.com/rss/index.xml",
+     "default_leagues": [
+      "la_liga"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "managing-madrid",
+   "name": "Managing Madrid",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.managingmadrid.com/rss/index.xml",
+     "default_leagues": [
+      "la_liga"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "football-italia",
+   "name": "Football Italia",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://football-italia.net/feed/",
+     "default_leagues": [
+      "serie_a"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "football-espana",
+   "name": "Football España",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.football-espana.net/feed",
+     "default_leagues": [
+      "la_liga"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "get-german-football",
+   "name": "Get German Football News",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://getfootballnewsgermany.com/feed/",
+     "default_leagues": [
+      "bundesliga"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "transfermarkt-en",
+   "name": "Transfermarkt",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.transfermarkt.co.uk/rss/news",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "bing-pl",
+   "name": "Bing News",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.bing.com/news/search?q=Premier+League+football&format=rss&mkt=en-GB&qft=sortbydate%3d%221%22",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "bing-ucl",
+   "name": "Bing News",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.bing.com/news/search?q=Champions+League+football&format=rss&mkt=en-GB&qft=sortbydate%3d%221%22",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "bing-la-liga",
+   "name": "Bing News",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.bing.com/news/search?q=La+Liga+football&format=rss&mkt=en-GB&qft=sortbydate%3d%221%22",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "bing-serie-a",
+   "name": "Bing News",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.bing.com/news/search?q=Serie+A+football&format=rss&mkt=en-GB&qft=sortbydate%3d%221%22",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "bing-bundesliga",
+   "name": "Bing News",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.bing.com/news/search?q=Bundesliga+football&format=rss&mkt=en-GB&qft=sortbydate%3d%221%22",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "bing-ligue-1",
+   "name": "Bing News",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.bing.com/news/search?q=Ligue+1+football&format=rss&mkt=en-GB&qft=sortbydate%3d%221%22",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "marca-home",
+   "name": "Marca",
+   "lang": "es",
+   "urls": [
+    {
+     "url": "https://e00-marca.uecdn.es/rss/portada.xml",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "marca-futbol",
+   "name": "Marca",
+   "lang": "es",
+   "urls": [
+    {
+     "url": "https://e00-marca.uecdn.es/rss/futbol.xml",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "marca-real-madrid",
+   "name": "Marca",
+   "lang": "es",
+   "urls": [
+    {
+     "url": "https://e00-marca.uecdn.es/rss/futbol/real-madrid.xml",
+     "default_leagues": [
+      "la_liga"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "marca-barcelona",
+   "name": "Marca",
+   "lang": "es",
+   "urls": [
+    {
+     "url": "https://e00-marca.uecdn.es/rss/futbol/barcelona.xml",
+     "default_leagues": [
+      "la_liga"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "marca-atletico",
+   "name": "Marca",
+   "lang": "es",
+   "urls": [
+    {
+     "url": "https://e00-marca.uecdn.es/rss/futbol/atletico.xml",
+     "default_leagues": [
+      "la_liga"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "as-latest",
+   "name": "AS",
+   "lang": "es",
+   "urls": [
+    {
+     "url": "https://as.com/rss/tags/ultimas_noticias.xml",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "as-futbol",
+   "name": "AS",
+   "lang": "es",
+   "urls": [
+    {
+     "url": "https://feeds.as.com/mrss-s/pages/as/site/as.com/section/futbol/portada",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "mundodeportivo",
+   "name": "Mundo Deportivo",
+   "lang": "es",
+   "urls": [
+    {
+     "url": "https://www.mundodeportivo.com/rss/futbol",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "mundodeportivo-home",
+   "name": "Mundo Deportivo",
+   "lang": "es",
+   "urls": [
+    {
+     "url": "https://www.mundodeportivo.com/rss/home",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "elpais-deportes",
+   "name": "El País",
+   "lang": "es",
+   "urls": [
+    {
+     "url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/deportes/portada",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "relevo",
+   "name": "Relevo",
+   "lang": "es",
+   "urls": [
+    {
+     "url": "https://www.relevo.com/rss/",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "elmundo-futbol",
+   "name": "El Mundo",
+   "lang": "es",
+   "urls": [
+    {
+     "url": "https://e00-elmundo.uecdn.es/elmundodeporte/rss/futbol.xml",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "abc-futbol",
+   "name": "ABC",
+   "lang": "es",
+   "urls": [
+    {
+     "url": "https://www.abc.es/rss/2.0/deportes/futbol/",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "sport-direct",
+   "name": "Sport",
+   "lang": "es",
+   "urls": [
+    {
+     "url": "https://www.sport.es/es/rss/futbol/rss.xml",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "lavanguardia-deportes",
+   "name": "La Vanguardia",
+   "lang": "es",
+   "urls": [
+    {
+     "url": "https://www.lavanguardia.com/rss/deportes.xml",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "gazzetta-calcio",
+   "name": "Gazzetta dello Sport",
+   "lang": "it",
+   "urls": [
+    {
+     "url": "https://www.gazzetta.it/rss/calcio.xml",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "gazzetta-serie-a",
+   "name": "Gazzetta dello Sport",
+   "lang": "it",
+   "urls": [
+    {
+     "url": "https://www.gazzetta.it/rss/serie-a.xml",
+     "default_leagues": [
+      "serie_a"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "corrieredellosport",
+   "name": "Corriere dello Sport",
+   "lang": "it",
+   "urls": [
+    {
+     "url": "https://www.corrieredellosport.it/rss/calcio",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "tuttosport",
+   "name": "Tuttosport",
+   "lang": "it",
+   "urls": [
+    {
+     "url": "https://www.tuttosport.com/rss/calcio",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "tuttomercatoweb",
+   "name": "TuttoMercatoWeb",
+   "lang": "it",
+   "urls": [
+    {
+     "url": "https://www.tuttomercatoweb.com/rss/",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "calciomercato",
+   "name": "Calciomercato.com",
+   "lang": "it",
+   "urls": [
+    {
+     "url": "https://www.calciomercato.com/feed",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "sky-sport-it",
+   "name": "Sky Sport Italia",
+   "lang": "it",
+   "urls": [
+    {
+     "url": "https://sport.sky.it/rss/calcio.xml",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "corriere-sport",
+   "name": "Corriere della Sera",
+   "lang": "it",
+   "urls": [
+    {
+     "url": "https://xml2.corriereobjects.it/rss/sport.xml",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "kicker-news",
+   "name": "Kicker",
+   "lang": "de",
+   "urls": [
+    {
+     "url": "https://newsfeed.kicker.de/news/aktuell",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "kicker-fussball",
+   "name": "Kicker",
+   "lang": "de",
+   "urls": [
+    {
+     "url": "https://newsfeed.kicker.de/news/fussball",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "kicker-premierleague",
+   "name": "Kicker",
+   "lang": "de",
+   "urls": [
+    {
+     "url": "https://newsfeed.kicker.de/news/premier-league",
+     "default_leagues": [
+      "premier_league"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "bild-fussball",
+   "name": "BILD",
+   "lang": "de",
+   "urls": [
+    {
+     "url": "https://www.bild.de/rssfeeds/vw-fussball/vw-fussball-72434568,view=rss2.bild.xml",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "sport1",
+   "name": "SPORT1",
+   "lang": "de",
+   "urls": [
+    {
+     "url": "https://www.sport1.de/rss/fussball",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "sportschau",
+   "name": "Sportschau",
+   "lang": "de",
+   "urls": [
+    {
+     "url": "https://www.sportschau.de/fussball/index~rss2.xml",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "spiegel-fussball",
+   "name": "Der Spiegel",
+   "lang": "de",
+   "urls": [
+    {
+     "url": "https://www.spiegel.de/sport/fussball/index.rss",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "sz-sport",
+   "name": "Süddeutsche Zeitung",
+   "lang": "de",
+   "urls": [
+    {
+     "url": "https://rss.sueddeutsche.de/rss/Sport",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "transfermarkt-de",
+   "name": "Transfermarkt",
+   "lang": "de",
+   "urls": [
+    {
+     "url": "https://www.transfermarkt.de/rss/news",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "bundesliga-com",
+   "name": "Bundesliga.com",
+   "lang": "en",
+   "urls": [
+    {
+     "url": "https://www.bundesliga.com/en/bundesliga/news/rss",
+     "default_leagues": [
+      "bundesliga"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lequipe-foot",
+   "name": "L'Équipe",
+   "lang": "fr",
+   "urls": [
+    {
+     "url": "https://www.lequipe.fr/rss/actu_rss_Football.xml",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "rmc-foot",
+   "name": "RMC Sport",
+   "lang": "fr",
+   "urls": [
+    {
+     "url": "https://rmcsport.bfmtv.com/rss/football/",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "leparisien-foot",
+   "name": "Le Parisien",
+   "lang": "fr",
+   "urls": [
+    {
+     "url": "https://www.leparisien.fr/sports/football/rss.xml",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "footmercato",
+   "name": "Foot Mercato",
+   "lang": "fr",
+   "urls": [
+    {
+     "url": "https://www.footmercato.net/rss",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "francefootball",
+   "name": "France Football",
+   "lang": "fr",
+   "urls": [
+    {
+     "url": "https://www.francefootball.fr/rss",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "lefigaro-sport",
+   "name": "Le Figaro",
+   "lang": "fr",
+   "urls": [
+    {
+     "url": "https://www.lefigaro.fr/rss/figaro_sport.xml",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "lemonde-football",
+   "name": "Le Monde",
+   "lang": "fr",
+   "urls": [
+    {
+     "url": "https://www.lemonde.fr/football/rss_full.xml",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "20minutes-sport",
+   "name": "20 Minutes",
+   "lang": "fr",
+   "urls": [
+    {
+     "url": "https://www.20minutes.fr/feeds/rss-sport.xml",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "francetvinfo-foot",
+   "name": "franceinfo",
+   "lang": "fr",
+   "urls": [
+    {
+     "url": "https://www.francetvinfo.fr/sports/football.rss",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "ouestfrance-foot",
+   "name": "Ouest-France",
+   "lang": "fr",
+   "urls": [
+    {
+     "url": "https://www.ouest-france.fr/rss/sport/football",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "actufoot",
+   "name": "Actufoot",
+   "lang": "fr",
+   "urls": [
+    {
+     "url": "https://www.actufoot.fr/feed",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "eurosport-fr",
+   "name": "Eurosport",
+   "lang": "fr",
+   "urls": [
+    {
+     "url": "https://www.eurosport.fr/football/rss.xml",
+     "default_leagues": []
+    }
+   ]
+  },
+  {
+   "id": "gnews-transfers",
+   "name": "Google News",
+   "type": "google_news",
+   "query": "football transfer news",
+   "default_leagues": []
+  },
+  {
+   "id": "gnews-liga-es",
+   "name": "Google News",
+   "type": "google_news",
+   "query": "Real Madrid Barcelona Atletico",
+   "default_leagues": [
+    "la_liga"
+   ]
+  }
+ ]
+}

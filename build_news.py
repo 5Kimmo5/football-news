@@ -374,6 +374,8 @@ def entry_image(el, base: str) -> str:
                 cands.append((int(c.get("width") or 0) if str(c.get("width") or "").isdigit() else 0, url))
         elif t == "enclosure" and url and (c.get("type") or "").lower().startswith("image"):
             cands.append((0, url))
+        elif t == "image" and not url and (c.text or "").strip().startswith("http"):
+            cands.append((0, c.text.strip()))  # e.g. Bing News <News:Image>
     if not cands:
         for name in ("encoded", "description", "content", "summary"):
             m = IMG_TAG_RE.search(html.unescape(child_text(el, name)))
@@ -906,6 +908,76 @@ def build_site(out: Path, cfg: dict, leagues: list, clusters: list, results: lis
 
 # --------------------------------------------------------------------------- main
 
+def classify_source(r: dict, leagues: list, exclude_titles: list, cutoff, now) -> None:
+    """Decide which items of one feed are used, and record why the others were dropped."""
+    r["kept_items"] = []
+    r["drop_old"] = r["drop_excluded"] = r["drop_noleague"] = 0
+    r["newest_h"] = None
+    if r["items"]:
+        r["newest_h"] = (now - max(it.published for it in r["items"])).total_seconds() / 3600
+    for it in r["items"]:
+        if it.published < cutoff:
+            r["drop_old"] += 1
+            continue
+        if any(rx.search(it.title) for rx in exclude_titles):
+            r["drop_excluded"] += 1
+            continue
+        classify(it, leagues)
+        if it.leagues:
+            r["kept_items"].append(it)
+            r["kept"] += 1
+        else:
+            r["drop_noleague"] += 1
+
+
+def fmt_age(h) -> str:
+    if h is None:
+        return "-"
+    return f"{h:.0f} h" if h < 48 else f"{h / 24:.1f} d"
+
+
+def run_trial(results: list, leagues: list, exclude_titles: list, cutoff, now, args) -> int:
+    """Trial mode: judge many candidate feeds without building a page."""
+    rows = []
+    for r in results:
+        if not r["ok"]:
+            rows.append({"r": r, "score": -1})
+            continue
+        classify_source(r, leagues, exclude_titles, cutoff, now)
+        used_img = sum(1 for it in r["kept_items"] if it.image)
+        per = {lg.key: sum(1 for it in r["kept_items"] if lg.key in it.leagues) for lg in leagues}
+        rows.append({"r": r, "used_img": used_img, "per": per, "score": used_img})
+    rows.sort(key=lambda x: (-x["score"], x["r"]["id"]))
+    short = {lg.key: "".join(w[0] for w in lg.name.split()).upper()[:3] for lg in leagues}
+    lines = [f"TRIAL REPORT  {now:%Y-%m-%d %H:%M} UTC   ({len(results)} candidate feeds, items newer than {(now - cutoff).days} days)",
+             "",
+             "Ranked by: used items that have a picture. 'used' = fresh and about one of the six competitions.",
+             "Leagues: " + ", ".join(f"{short[k]}={lg.name}" for k, lg in zip(short, leagues)),
+             "",
+             f"{'feed':<26}{'read':>5}{'img':>5}{'used':>5}{'used+img':>9}{'newest':>8}  per league",
+             "-" * 100]
+    for x in rows:
+        r = x["r"]
+        if not r["ok"]:
+            continue
+        pl = " ".join(f"{short[k]}:{v}" for k, v in x["per"].items() if v)
+        lines.append(f"{r['id']:<26}{r['raw']:>5}{r['images']:>5}{r['kept']:>5}{x['used_img']:>9}{fmt_age(r['newest_h']):>8}  {pl}")
+    failed = [x["r"] for x in rows if not x["r"]["ok"]]
+    lines += ["", f"FAILED ({len(failed)}):"]
+    for r in failed:
+        lines.append(f"  {r['id']:<26}{r['error'][:110]}")
+    total_ok = sum(1 for x in rows if x["r"]["ok"])
+    lines += ["", f"{total_ok} of {len(results)} feeds worked; "
+                  f"{sum(1 for x in rows if x['score'] > 0)} had at least one used story with a picture."]
+    text = "\n".join(lines)
+    print(text)
+    out = Path(args.out or "trial_output")
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "trial_report.txt").write_text(text, encoding="utf-8")
+    print(f"\nReport also saved to {out / 'trial_report.txt'}")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Build a static football news page from RSS feeds.")
     ap.add_argument("--config", default=str(Path(__file__).with_name("config.json")))
@@ -913,6 +985,7 @@ def main() -> int:
     ap.add_argument("--open", action="store_true", help="open the page in the browser when done")
     ap.add_argument("--samples", help="test mode: read feeds from this folder instead of the internet")
     ap.add_argument("--now", help="test mode: pretend it is this ISO time")
+    ap.add_argument("--trial", metavar="FILE", help="trial mode: test the candidate feeds listed in FILE and print a report")
     args = ap.parse_args()
 
     cfg = json.loads(Path(args.config).read_text(encoding="utf-8"))
@@ -927,6 +1000,11 @@ def main() -> int:
     if now is None:
         sys.exit("Could not read --now value")
     leagues = build_leagues(cfg)
+    if args.trial:
+        cand = json.loads(Path(args.trial).read_text(encoding="utf-8"))
+        cfg = dict(cfg, sources=cand["sources"])
+        cfg["settings"] = dict(st, google_news_club_feeds=False, max_workers=max(st["max_workers"], 12))
+        st = cfg["settings"]
     sources = expand_sources(cfg)
     exclude_titles = [re.compile(p) for p in cfg.get("exclude_title_patterns", [])]
 
@@ -935,15 +1013,12 @@ def main() -> int:
         results = list(pool.map(lambda s: load_source(s, args, st, now), sources))
 
     cutoff = now - dt.timedelta(days=st["max_age_days"])
+    if args.trial:
+        return run_trial(results, leagues, exclude_titles, cutoff, now, args)
     kept = []
     for r in results:
-        for it in r["items"]:
-            if it.published < cutoff or any(rx.search(it.title) for rx in exclude_titles):
-                continue
-            classify(it, leagues)
-            if it.leagues:
-                kept.append(it)
-                r["kept"] += 1
+        classify_source(r, leagues, exclude_titles, cutoff, now)
+        kept.extend(r["kept_items"])
 
     clusters = build_clusters(kept, now)
     lookups = None
@@ -958,7 +1033,9 @@ def main() -> int:
     print(f"\nFeeds that worked: {ok} of {len(results)}")
     for r in results:
         if r["ok"]:
-            print(f"  OK      {r['id']:<22} {r['raw']:>4} read, {r['kept']:>4} used, {r['images']:>4} with image")
+            drops = ", ".join(f"{n} {why}" for n, why in ((r["drop_old"], "too old"), (r["drop_excluded"], "excluded"), (r["drop_noleague"], "no league")) if n)
+            print(f"  OK      {r['id']:<22} {r['raw']:>4} read, {r['kept']:>4} used, {r['images']:>4} with image"
+                  f"   newest {fmt_age(r['newest_h'])}" + (f"   dropped: {drops}" if drops else ""))
         else:
             print(f"  FAILED  {r['id']:<22} {r['error']}")
     print(f"\n{len(kept)} items -> {len(clusters)} stories after merging duplicates")
