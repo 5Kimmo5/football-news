@@ -18,15 +18,19 @@ Options: --open            open the page in your browser when done
 from __future__ import annotations
 
 import argparse
+import colorsys
 import concurrent.futures
 import datetime as dt
 import email.utils
 import gzip
+import hashlib
 import html
 import json
 import re
 import sys
+import time
 import unicodedata
+import urllib.error
 import urllib.parse
 import urllib.request
 import webbrowser
@@ -36,6 +40,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 UTC = dt.timezone.utc
+CLUB_STYLES = {}  # club name -> (short code, colour), from config 'club_styles'
 DISPLAY_TZ = None  # set from config 'timezone'; None = this computer's own time zone
 
 
@@ -141,6 +146,7 @@ class League:
         self.name = spec["name"]
         self.slug = spec.get("slug", self.key.replace("_", "-"))
         self.file = self.slug + ".html"
+        self.color = spec.get("color", "")
         self.keywords = [phrase_re(k) for k in spec.get("keywords", [])]
         self.keyword_exclude = [phrase_re(k) for k in spec.get("keyword_exclude", [])]
         self.assign_by_team = spec.get("assign_by_team", True)
@@ -230,6 +236,7 @@ class Item:
     default_leagues: set
     leagues: set = field(default_factory=set)
     teams: dict = field(default_factory=dict)
+    image: str = ""
 
 
 # --------------------------------------------------------------------------- fetching and parsing
@@ -246,6 +253,23 @@ def fetch(url: str, timeout: int, ua: str) -> bytes:
     })
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read()
+
+
+def fetch_retry(url: str, timeout: int, ua: str, tries: int = 3) -> bytes:
+    """Like fetch(), but a temporary problem (503, 429, timeout...) gets another try after a short wait."""
+    delay = 2.0
+    for attempt in range(tries):
+        try:
+            return fetch(url, timeout, ua)
+        except urllib.error.HTTPError as exc:
+            if exc.code not in (429, 500, 502, 503, 504) or attempt == tries - 1:
+                raise
+        except OSError:  # timeouts, dropped connections, DNS hiccups
+            if attempt == tries - 1:
+                raise
+        time.sleep(delay)
+        delay *= 2.5
+    raise RuntimeError("unreachable")
 
 
 def clean_bytes(data: bytes) -> bytes:
@@ -315,6 +339,44 @@ def parse_date(text: str):
     return d.astimezone(UTC)
 
 
+IMG_TAG_RE = re.compile(r"<img[^>]+src=[\"']([^\"']+)[\"']", re.I)
+IMG_EXT_RE = re.compile(r"\.(jpe?g|png|webp|gif)(\?|$)", re.I)
+
+
+def entry_image(el, base: str) -> str:
+    """Best thumbnail for a feed entry: media:thumbnail / media:content / enclosure / first <img> in the text."""
+    cands = []  # (width, url)
+    for c in el.iter():
+        t = local(c.tag)
+        url = (c.get("url") or "").strip()
+        if t == "thumbnail" and url:
+            cands.append((int(c.get("width") or 0) if str(c.get("width") or "").isdigit() else 0, url))
+        elif t == "content" and url:
+            kind = ((c.get("medium") or "") + " " + (c.get("type") or "")).lower()
+            if "image" in kind or IMG_EXT_RE.search(url):
+                cands.append((int(c.get("width") or 0) if str(c.get("width") or "").isdigit() else 0, url))
+        elif t == "enclosure" and url and (c.get("type") or "").lower().startswith("image"):
+            cands.append((0, url))
+    if not cands:
+        for name in ("encoded", "description", "content", "summary"):
+            m = IMG_TAG_RE.search(html.unescape(child_text(el, name)))
+            if m:
+                cands.append((0, m.group(1).strip()))
+                break
+    if not cands:
+        return ""
+    sized = sorted(c for c in cands if c[0])
+    if sized:
+        big = [c for c in sized if c[0] >= 300]
+        url = (big[0] if big else sized[-1])[1]  # smallest picture that is still sharp enough
+    else:
+        url = cands[0][1]
+    url = urllib.parse.urljoin(base, url) if base else url
+    if url.startswith("http://"):
+        url = "https://" + url[len("http://"):]
+    return url if url.startswith("https://") else ""
+
+
 def parse_feed(data: bytes, base: str = "") -> list:
     root = parse_xml(data)
     entries = []
@@ -341,6 +403,7 @@ def parse_feed(data: bytes, base: str = "") -> list:
             "summary_raw": child_text(el, "description", "summary", "encoded", "content"),
             "published": parse_date(child_text(el, "pubDate", "published", "updated", "date")),
             "publisher": child_text(el, "source"),
+            "image": entry_image(el, base),
         })
     if not entries and first is not None:
         raw = re.sub(r"\s+", " ", ET.tostring(first, encoding="unicode"))[:500]
@@ -361,7 +424,7 @@ def load_source(src: dict, args, st: dict, now: dt.datetime) -> dict:
                     raise FileNotFoundError(f"no sample file {path.name}")
                 data = path.read_bytes()
             else:
-                data = fetch(u["url"], st["timeout_seconds"], src.get("user_agent") or st["user_agent"])
+                data = fetch_retry(u["url"], st["timeout_seconds"], src.get("user_agent") or st["user_agent"])
             entries = parse_feed(clean_bytes(data), u["url"])
             if not entries:
                 raise ValueError("feed contained no usable items")
@@ -390,6 +453,7 @@ def load_source(src: dict, args, st: dict, now: dt.datetime) -> dict:
                 aggregator=src["aggregator"],
                 prio=src["prio"],
                 default_leagues=set(u["default_leagues"]),
+                image=e["image"],
             ))
         return res
     res["error"] = " | ".join(errors)
@@ -400,7 +464,9 @@ def load_source(src: dict, args, st: dict, now: dt.datetime) -> dict:
 
 def classify(item: Item, leagues: list) -> None:
     text = norm(item.title + " " + item.summary)
-    found = set(item.default_leagues)
+    # a search feed (Google News) returns loosely related articles, so its league is not trusted:
+    # the headline itself must mention the league or one of its clubs
+    found = set() if item.aggregator else set(item.default_leagues)
     for lg in leagues:
         if lg.keyword_match(text):
             found.add(lg.key)
@@ -455,11 +521,16 @@ def build_clusters(items: list, now: dt.datetime) -> list:
                 teams.setdefault(lk, {})
                 for t in ts:
                     teams[lk][t.slug] = t.name
+        image = ""
+        for m in [rep] + sorted(members, key=lambda i: i.published, reverse=True):
+            if m.image:
+                image = m.image
+                break
         latest = max(m.published for m in members)
         age_h = max(0.0, (now - latest).total_seconds() / 3600)
         score = 2.0 * min(len(sources) - 1, 5) + 4.0 * 0.5 ** (age_h / 12)
         result.append({"rep": rep, "sources": sources, "leagues": leagues, "teams": teams,
-                       "latest": latest, "score": score})
+                       "latest": latest, "score": score, "image": image})
     return result
 
 
@@ -481,14 +552,18 @@ header.top h1 a{text-decoration:none}
 .chips a:hover{background:var(--accent-soft)}
 .chips a[aria-current]{background:var(--accent);color:#fff}
 main{padding:20px 0 40px}
-.league{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 18px 12px;margin:0 0 18px}
+.league{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--lc,var(--line));border-radius:12px;padding:6px 18px 12px;margin:0 0 18px}
 .league-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:10px 0 6px}
 .league-head h2{margin:0;font-size:1.2rem}
 .league-head h2 a{text-decoration:none}
 .league-head h2 a:hover,.all:hover{color:var(--accent)}
 .all{font-size:.9rem;color:var(--muted);text-decoration:none;white-space:nowrap}
 .stories{list-style:none;margin:0;padding:0}
-.story{padding:10px 0;border-top:1px solid var(--line)}
+.story{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)}
+.story .body{flex:1;min-width:0}
+.thumbwrap{flex:none;display:block}
+.thumb{display:block;width:96px;height:64px;object-fit:cover;border-radius:6px;background:var(--chip)}
+.club{display:inline-block;padding:0 6px;border-radius:4px;font-size:.7rem;font-weight:700;letter-spacing:.02em;line-height:1.55;box-shadow:inset 0 0 0 1px rgba(128,128,128,.35)}
 .story:first-child{border-top:0}
 .story .title{font-weight:600;text-decoration:none}
 .story .title:hover{color:var(--accent);text-decoration:underline}
@@ -556,12 +631,36 @@ FILTER_JS = """
 """
 
 
+def club_style(name: str):
+    spec = CLUB_STYLES.get(name)
+    if spec:
+        return spec[0], spec[1]
+    words = re.findall(r"[a-z]+", norm(name))
+    short = (words[0] if words else name)[:3].upper()
+    hue = int(hashlib.md5(name.encode("utf-8")).hexdigest()[:4], 16) / 65535
+    r, g, b = colorsys.hls_to_rgb(hue, 0.35, 0.55)
+    return short, "#%02x%02x%02x" % (int(r * 255), int(g * 255), int(b * 255))
+
+
+def text_on(color: str) -> str:
+    r, g, b = (int(color[i:i + 2], 16) for i in (1, 3, 5))
+    return "#111" if (0.299 * r + 0.587 * g + 0.114 * b) > 160 else "#fff"
+
+
+def club_chips(teams: dict) -> list:
+    out = []
+    for name in list(teams.values())[:3]:
+        short, color = club_style(name)
+        out.append(f'<span class="club" style="background:{color};color:{text_on(color)}" title="{esc(name)}">{esc(short)}</span>')
+    return out
+
+
 def fmt_time(d: dt.datetime) -> str:
     return to_local(d).strftime("%d %b %H:%M")
 
 
-def translate_url(link: str) -> str:
-    return "https://translate.google.com/translate?sl=auto&tl=en&u=" + urllib.parse.quote(link, safe="")
+def translate_url(link: str, lang: str = "auto") -> str:
+    return f"https://translate.google.com/translate?sl={lang}&tl=en&u=" + urllib.parse.quote(link, safe="")
 
 
 def story_li(c: dict, league: League, with_teams_attr: bool, with_summary: bool = False) -> str:
@@ -569,7 +668,7 @@ def story_li(c: dict, league: League, with_teams_attr: bool, with_summary: bool 
     lang_attr = f' lang="{esc(rep.lang)}"' if rep.lang != "en" else ""
     teams = c["teams"].get(league.key, {})
     data = f' data-teams="{esc(" ".join(sorted(teams)))}"' if with_teams_attr else ""
-    meta = [f'<span class="src">{esc(rep.source_name)}</span>']
+    meta = club_chips(teams) + [f'<span class="src">{esc(rep.source_name)}</span>']
     if rep.via:
         meta.append(f"via {esc(rep.via)}")
     meta.append(f'<time datetime="{c["latest"].isoformat()}">{fmt_time(c["latest"])}</time>')
@@ -579,11 +678,16 @@ def story_li(c: dict, league: League, with_teams_attr: bool, with_summary: bool 
         meta.append(f'<span class="badge" title="{esc(names)}">{n} sources</span>')
     if rep.lang != "en":
         meta.append(f'<span class="lang">{esc(rep.lang.upper())}</span>')
-        meta.append(f'<a class="tr" href="{esc(translate_url(rep.link))}" target="_blank" rel="noopener">Translate</a>')
+        meta.append(f'<a class="tr" href="{esc(translate_url(rep.link, rep.lang))}" target="_blank" rel="noopener">Translate</a>')
     summary = f'<p class="sum"{lang_attr}>{esc(rep.summary)}</p>' if (with_summary and rep.summary) else ""
+    thumb = ""
+    if c.get("image"):
+        thumb = (f'<a class="thumbwrap" href="{esc(rep.link)}" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true">'
+                 f'<img class="thumb" src="{esc(c["image"])}" alt="" loading="lazy" referrerpolicy="no-referrer" '
+                 f'onerror="this.remove()"></a>')
     return (
-        f'<li class="story"{data}><a class="title"{lang_attr} href="{esc(rep.link)}" target="_blank" rel="noopener">'
-        f'{esc(rep.title)}</a>{summary}<div class="meta">{" ".join(meta)}</div></li>'
+        f'<li class="story"{data}><div class="body"><a class="title"{lang_attr} href="{esc(rep.link)}" target="_blank" rel="noopener">'
+        f'{esc(rep.title)}</a>{summary}<div class="meta">{" ".join(meta)}</div></div>{thumb}</li>'
     )
 
 
@@ -631,7 +735,7 @@ def build_site(out: Path, cfg: dict, leagues: list, clusters: list, results: lis
         else:
             body = f'<p class="empty">No stories in the last {days} days.</p>'
         sections.append(
-            f'<section class="league" id="{lg.slug}"><div class="league-head">'
+            f'<section class="league" id="{lg.slug}"{(" style=" + chr(34) + "--lc:" + lg.color + chr(34)) if lg.color else ""}><div class="league-head">'
             f'<h2><a href="{lg.file}">{esc(lg.name)}</a></h2>'
             f'<a class="all" href="{lg.file}">All {len(cl)} stories →</a></div>{body}</section>'
         )
@@ -690,6 +794,8 @@ def build_site(out: Path, cfg: dict, leagues: list, clusters: list, results: lis
             f'<p class="meta-line">{esc(lg.name)} · {len(cl)} stories · updated {stamp} · '
             f'<a href="index.html">← all sections</a></p>{nav_chips(leagues, lg.key)}</div></header>'
         )
+        if lg.color:
+            header = header.replace('<header class="top">', f'<header class="top" style="border-top:5px solid {lg.color}">', 1)
         body = f'<div class="filters" id="teams">{"".join(buttons)}</div>{top_html}{latest_html}'
         (out / lg.file).write_text(
             page_shell(f"{lg.name} – {title}", header, body, FILTER_JS,
@@ -711,7 +817,8 @@ def main() -> int:
 
     cfg = json.loads(Path(args.config).read_text(encoding="utf-8"))
     st = cfg["settings"]
-    global DISPLAY_TZ
+    global DISPLAY_TZ, CLUB_STYLES
+    CLUB_STYLES = {k: tuple(v) for k, v in cfg.get("club_styles", {}).items()}
     try:
         DISPLAY_TZ = zoneinfo.ZoneInfo(st["timezone"]) if st.get("timezone") else None
     except Exception:  # e.g. Windows without the time zone database: use the computer's own time
