@@ -564,6 +564,17 @@ OG_RES = [
 ]
 
 
+LOOKUP_STATS: dict = {}
+LOOKUP_SAMPLES: list = []
+
+
+def _note(reason: str, url: str = "") -> str:
+    LOOKUP_STATS[reason] = LOOKUP_STATS.get(reason, 0) + 1
+    if url and reason != "picture found" and len(LOOKUP_SAMPLES) < 6:
+        LOOKUP_SAMPLES.append(f"{reason}: {urllib.parse.urlparse(url).netloc}")
+    return ""
+
+
 def find_page_image(url: str, timeout: int, ua: str) -> str:
     """Read the start of an article page and return its social-sharing picture (og:image), or ''."""
     try:
@@ -571,8 +582,10 @@ def find_page_image(url: str, timeout: int, ua: str) -> str:
                                                    "Accept-Encoding": "identity"})
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             page = read_limited(resp, 200000, time.monotonic() + timeout, partial_ok=True).decode("utf-8", "replace")
-    except Exception:
-        return ""
+    except urllib.error.HTTPError as e:
+        return _note(f"HTTP {e.code}", url)
+    except Exception as e:
+        return _note(type(e).__name__, url)
     head = page.split("</head>", 1)[0]
     for rx in OG_RES:
         m = rx.search(head)
@@ -580,8 +593,11 @@ def find_page_image(url: str, timeout: int, ua: str) -> str:
             img = urllib.parse.urljoin(url, html.unescape(m.group(1).strip()))
             if img.startswith("http://"):
                 img = "https://" + img[len("http://"):]
-            return img if img.startswith("https://") else ""
-    return ""
+            if img.startswith("https://"):
+                LOOKUP_STATS["picture found"] = LOOKUP_STATS.get("picture found", 0) + 1
+                return img
+            return _note("picture link not https", url)
+    return _note("page has no picture tag", url)
 
 
 def add_page_images(clusters: list, leagues: list, st: dict) -> tuple:
@@ -604,6 +620,7 @@ def add_page_images(clusters: list, leagues: list, st: dict) -> tuple:
 
     def work(c):
         if time.monotonic() - t0 > budget:  # out of time: skip the rest, the page is more important
+            _note("skipped (time budget used up)")
             return 0
         for link in c["links"][:2]:
             img = find_page_image(link, st.get("image_lookup_timeout", 8), st["user_agent"])
@@ -947,6 +964,10 @@ def main() -> int:
     print(f"\n{len(kept)} items -> {len(clusters)} stories after merging duplicates")
     if lookups:
         print(f"Pictures found on article pages: {lookups[0]} of {lookups[1]} looked up")
+        for reason, n in sorted(LOOKUP_STATS.items(), key=lambda kv: -kv[1]):
+            print(f"    {n:>3} x {reason}")
+        for line in LOOKUP_SAMPLES:
+            print(f"    e.g. {line}")
     print(f"Stories with a picture: {sum(1 for c in clusters if c['image'])} of {len(clusters)}")
     for lg in leagues:
         print(f"  {lg.name:<18} {sum(1 for c in clusters if lg.key in c['leagues']):>4} stories")
