@@ -1,0 +1,25 @@
+name: Trial of candidate feeds
+
+# Run by hand only: Actions tab -> "Trial of candidate feeds" -> Run workflow.
+# It does NOT touch the live page. The report is printed in the log and saved as a download.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trial:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -u build_news.py --trial trial_candidates.json --out trial_output
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trial-report
+          path: trial_output/trial_report.txt
