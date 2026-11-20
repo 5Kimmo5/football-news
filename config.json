@@ -11,7 +11,9 @@
     "google_news_hl": "en-GB",
     "google_news_gl": "GB",
     "google_news_club_feeds": false,
-    "timezone": "Europe/Helsinki"
+    "timezone": "Europe/Helsinki",
+    "max_image_lookups": 60,
+    "image_lookup_timeout": 8
   },
   "exclude_title_patterns": [
     "(?i)^\\s*match thread",

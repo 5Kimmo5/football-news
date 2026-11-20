@@ -412,7 +412,7 @@ def parse_feed(data: bytes, base: str = "") -> list:
 
 
 def load_source(src: dict, args, st: dict, now: dt.datetime) -> dict:
-    res = {"id": src["id"], "name": src["name"], "ok": False, "url": "", "raw": 0, "kept": 0, "error": "", "items": []}
+    res = {"id": src["id"], "name": src["name"], "ok": False, "url": "", "raw": 0, "kept": 0, "images": 0, "error": "", "items": []}
     errors = []
     for idx, u in enumerate(src["urls"]):
         data = b""
@@ -455,6 +455,7 @@ def load_source(src: dict, args, st: dict, now: dt.datetime) -> dict:
                 default_leagues=set(u["default_leagues"]),
                 image=e["image"],
             ))
+        res["images"] = sum(1 for it in res["items"] if it.image)
         return res
     res["error"] = " | ".join(errors)
     return res
@@ -526,12 +527,72 @@ def build_clusters(items: list, now: dt.datetime) -> list:
             if m.image:
                 image = m.image
                 break
+        links = []
+        for m in [rep] + sorted(members, key=lambda i: i.published, reverse=True):
+            if not urllib.parse.urlparse(m.link).netloc.endswith("news.google.com") and m.link not in links:
+                links.append(m.link)
         latest = max(m.published for m in members)
         age_h = max(0.0, (now - latest).total_seconds() / 3600)
         score = 2.0 * min(len(sources) - 1, 5) + 4.0 * 0.5 ** (age_h / 12)
         result.append({"rep": rep, "sources": sources, "leagues": leagues, "teams": teams,
-                       "latest": latest, "score": score, "image": image})
+                       "latest": latest, "score": score, "image": image, "links": links})
     return result
+
+
+# --------------------------------------------------------------------------- picture lookup on article pages
+
+OG_RES = [
+    re.compile(r'<meta[^>]+?(?:property|name)=["\'](?:og:image(?::secure_url)?|twitter:image)["\'][^>]*?content=["\']([^"\']+)["\']', re.I),
+    re.compile(r'<meta[^>]+?content=["\']([^"\']+)["\'][^>]*?(?:property|name)=["\'](?:og:image(?::secure_url)?|twitter:image)["\']', re.I),
+]
+
+
+def find_page_image(url: str, timeout: int, ua: str) -> str:
+    """Read the start of an article page and return its social-sharing picture (og:image), or ''."""
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": ua, "Accept": "text/html,*/*;q=0.5",
+                                                   "Accept-Encoding": "identity"})
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            page = resp.read(200000).decode("utf-8", "replace")
+    except Exception:
+        return ""
+    head = page.split("</head>", 1)[0]
+    for rx in OG_RES:
+        m = rx.search(head)
+        if m:
+            img = urllib.parse.urljoin(url, html.unescape(m.group(1).strip()))
+            if img.startswith("http://"):
+                img = "https://" + img[len("http://"):]
+            return img if img.startswith("https://") else ""
+    return ""
+
+
+def add_page_images(clusters: list, leagues: list, st: dict) -> tuple:
+    """For top stories still without a picture, look one up on the publisher's article page."""
+    limit = st.get("max_image_lookups", 60)
+    if not limit:
+        return 0, 0
+    ranked = sorted(clusters, key=lambda c: (-c["score"], -c["latest"].timestamp()))
+    first, seen = [], set()
+    for lg in leagues:  # stories shown on the front page come first
+        for c in [c for c in ranked if lg.key in c["leagues"]][: st["front_page_items"]]:
+            if id(c) not in seen:
+                seen.add(id(c))
+                first.append(c)
+    order = first + [c for c in ranked if id(c) not in seen]
+    todo = [c for c in order if not c["image"] and c["links"]][:limit]
+
+    def work(c):
+        for link in c["links"][:2]:
+            img = find_page_image(link, st.get("image_lookup_timeout", 8), st["user_agent"])
+            if img:
+                c["image"] = img
+                return 1
+        return 0
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=st["max_workers"]) as pool:
+        found = sum(pool.map(work, todo))
+    return found, len(todo)
 
 
 # --------------------------------------------------------------------------- HTML output
@@ -746,7 +807,7 @@ def build_site(out: Path, cfg: dict, leagues: list, clusters: list, results: lis
         if r["ok"]:
             host = urllib.parse.urlparse(r["url"]).netloc
             rows.append(f'<tr><td>{esc(r["name"])} <span>({esc(r["id"])})</span></td><td>OK</td>'
-                        f'<td>{esc(host)}</td><td>{r["raw"]} read, {r["kept"]} used</td></tr>')
+                        f'<td>{esc(host)}</td><td>{r["raw"]} read, {r["kept"]} used, {r["images"]} with image</td></tr>')
         else:
             rows.append(f'<tr><td>{esc(r["name"])} <span>({esc(r["id"])})</span></td><td class="bad">Failed</td>'
                         f'<td colspan="2" class="bad">{esc(r["error"])}</td></tr>')
@@ -846,6 +907,9 @@ def main() -> int:
                 r["kept"] += 1
 
     clusters = build_clusters(kept, now)
+    lookups = None
+    if not args.samples:  # test mode has no internet
+        lookups = add_page_images(clusters, leagues, st)
     out = Path(args.out or st["output_dir"])
     if not out.is_absolute():
         out = Path(args.config).resolve().parent / out
@@ -855,10 +919,13 @@ def main() -> int:
     print(f"\nFeeds that worked: {ok} of {len(results)}")
     for r in results:
         if r["ok"]:
-            print(f"  OK      {r['id']:<22} {r['raw']:>4} read, {r['kept']:>4} used")
+            print(f"  OK      {r['id']:<22} {r['raw']:>4} read, {r['kept']:>4} used, {r['images']:>4} with image")
         else:
             print(f"  FAILED  {r['id']:<22} {r['error']}")
     print(f"\n{len(kept)} items -> {len(clusters)} stories after merging duplicates")
+    if lookups:
+        print(f"Pictures found on article pages: {lookups[0]} of {lookups[1]} looked up")
+    print(f"Stories with a picture: {sum(1 for c in clusters if c['image'])} of {len(clusters)}")
     for lg in leagues:
         print(f"  {lg.name:<18} {sum(1 for c in clusters if lg.key in c['leagues']):>4} stories")
     index = out / "index.html"
