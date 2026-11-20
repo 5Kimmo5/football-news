@@ -13,7 +13,8 @@
     "google_news_club_feeds": false,
     "timezone": "Europe/Helsinki",
     "max_image_lookups": 60,
-    "image_lookup_timeout": 8
+    "image_lookup_timeout": 8,
+    "image_lookup_total_seconds": 45
   },
   "exclude_title_patterns": [
     "(?i)^\\s*match thread",

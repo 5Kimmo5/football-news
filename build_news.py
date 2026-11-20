@@ -245,6 +245,23 @@ def local(tag) -> str:
     return tag.rsplit("}", 1)[-1] if isinstance(tag, str) and "}" in tag else tag
 
 
+def read_limited(resp, max_bytes: int, deadline: float, partial_ok: bool = False) -> bytes:
+    """Read a response in pieces so a slowly dripping server cannot keep us waiting for ever."""
+    chunks, total = [], 0
+    while total < max_bytes:
+        if time.monotonic() > deadline:
+            if partial_ok:
+                break
+            raise TimeoutError("download too slow")
+        n = min(16384, max_bytes - total)
+        chunk = resp.read1(n) if hasattr(resp, "read1") else resp.read(n)
+        if not chunk:
+            break
+        chunks.append(chunk)
+        total += len(chunk)
+    return b"".join(chunks)
+
+
 def fetch(url: str, timeout: int, ua: str) -> bytes:
     req = urllib.request.Request(url, headers={
         "User-Agent": ua,
@@ -252,7 +269,7 @@ def fetch(url: str, timeout: int, ua: str) -> bytes:
         "Accept-Encoding": "identity",
     })
     with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return resp.read()
+        return read_limited(resp, 5_000_000, time.monotonic() + timeout * 2)
 
 
 def fetch_retry(url: str, timeout: int, ua: str, tries: int = 3) -> bytes:
@@ -553,7 +570,7 @@ def find_page_image(url: str, timeout: int, ua: str) -> str:
         req = urllib.request.Request(url, headers={"User-Agent": ua, "Accept": "text/html,*/*;q=0.5",
                                                    "Accept-Encoding": "identity"})
         with urllib.request.urlopen(req, timeout=timeout) as resp:
-            page = resp.read(200000).decode("utf-8", "replace")
+            page = read_limited(resp, 200000, time.monotonic() + timeout, partial_ok=True).decode("utf-8", "replace")
     except Exception:
         return ""
     head = page.split("</head>", 1)[0]
@@ -582,7 +599,12 @@ def add_page_images(clusters: list, leagues: list, st: dict) -> tuple:
     order = first + [c for c in ranked if id(c) not in seen]
     todo = [c for c in order if not c["image"] and c["links"]][:limit]
 
+    t0 = time.monotonic()
+    budget = st.get("image_lookup_total_seconds", 45)
+
     def work(c):
+        if time.monotonic() - t0 > budget:  # out of time: skip the rest, the page is more important
+            return 0
         for link in c["links"][:2]:
             img = find_page_image(link, st.get("image_lookup_timeout", 8), st["user_agent"])
             if img:
